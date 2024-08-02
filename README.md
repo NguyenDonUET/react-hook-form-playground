@@ -1,30 +1,48 @@
-# React + TypeScript + Vite
+## 🤔 Cách valida mảng động các input?
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- tạo biến `form = useForm({resolver: valibotResolver(adCopySchema)})`
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
+- trong adCopySchema: ràng buộc cho mỗi element, ràng buộc cho cái mảng
 
 ```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json', './tsconfig.app.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
+  listHeadline: array(
+    string('Headline can not be empty', [
+      minLength(5, 'Character limit (5~30)'),
+      maxLength(MAX_LENGTH.AD_COPY.HEADLINE, 'Character limit (5~30)'),
+      noFourConsecutiveIdenticalChars,
+    ]),
+    [
+      minLength(1, 'Headline is required'),
+      maxLength(MAX_HEADLINES, `No more than ${MAX_HEADLINES} headlines are allowed`),
+    ],
+  ),
+
+
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+- kiểu của form: `UseFormReturn<AdCopy, any, undefined>`
+
+- getValues của form
+
+- lấy headlines: `headlines = getValues('listHeadline') || [''];` và in ra các InputCheck(có check icon nếu khác chuỗi rỗng)
+
+- khi register cho InputCheck: là input thường
+
+  ```js
+  {...register(`listHeadline.${index}`)}`
+  ```
+
+- khi click add new input => addHeadline('')
+
+```js
+setValue('listHeadline', [...getValues('listHeadline'), headline]);
+// focus vào input cuối cùng
+form.setFocus(`listHeadline.${headlines.length}`);
+```
+
+- hiện message lỗi:
+
+```js
+  error={errors.listHeadline?.[index]?.message}
+  errors.listHeadline?.root là true
+```
